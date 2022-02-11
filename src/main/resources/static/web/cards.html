@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/cards.css">
+
+    <!-- copiado -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="fonts/icomoon/style.css">
+
+    <!--Este causa conflicto con las tarjetas -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="css/jquery-ui.css">
+    <link rel="stylesheet" href="css/owl.carousel.min.css">
+    <link rel="stylesheet" href="css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="css/jquery.fancybox.min.css">
+    <link rel="stylesheet" href="css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
+    <link rel="stylesheet" href="css/aos.css">
+    <link rel="stylesheet" href="css/styleIndex.css">
+    <title>Cards</title>
+</head>
+
+<body class="color-gris">
+<div id="app">
+    <div class="toast-container position-absolute p-3 top-0 end-0" id="toastPlacement">
+        <div id="danger-toast" data-bs-delay="2000" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    {{ errorMsg }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de navegación de arriba-->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+            <a class="navbar-brand" href="/web/accounts.html">Debuwin</a>
+            <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link " aria-current="page" href="/web/accounts.html">Página principal</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/web/cards.html">Tarjetas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/web/transfers.html">Transferencias</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="loan-application.html">Crédito</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/web/seguro-application.html">Seguros</a>
+                </li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0">
+                <button class="btn btn-danger img-fluid" v-on:click="signOut">Cerrar sesión</button>
+            </form>
+        </div>
+    </nav>
+
+    <!-- container de las tarjetas -->
+    <div class="container bg-transparent">
+
+        <div class="row mt-5">
+            <div class="col">
+
+                <!-- Título cliente -->
+                <div class="row">
+                    <div class="col">
+                        <h2 class="display-6 subtitle">Cliente {{ clientInfo.firstName }} {{ clientInfo.lastName }}</h2>
+                    </div>
+                </div>
+
+                <!-- Título tarjeta de débito -->
+                <div class="row mt-3">
+                    <div class="col">
+                        <h4>Tarjetas de Débito</h4>
+                        <a v-if="clientInfo.cards != null && clientInfo.cards.length < 6" href="create-cards.html" id="create" class="btn btn-sm btn-success">Crear</a>
+                        <div v-if="debitCards.length <= 0"><span class="small">No tiene tarjetas de Débito</span></div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <!-- for que hace que se creen las tarjetas-->
+                    <div v-for="card in debitCards" class="plastic-card col-12 col-md-3 mt-2 mx-auto px-2 mb-4">
+
+                        <!--Parte de adelante de las tarjetas -->
+                        <div v-bind:class="['plastic-card__front', 'plastic-card__part', card.color.toLowerCase() +'-plastic-card']">
+                            <div class="plastic-card__square">
+                                <span class="plastic-card__label">{{ card.type}} {{ card.color }}</span>
+                            </div>
+                            <img class="plastic-card__front-logo plastic-card__logo"
+                                 src="img/logo vinotinto.png">
+                            <p class="plastic-card_numer">{{ card.number}}</p>
+                            <div class="plastic-card__space-60">
+                                <span class="plastic-card__label">Propietario</span>
+                                <p class="plastic-card__info">{{ card.cardholder }}</p>
+                            </div>
+                            <div class="plastic-card__space-25">
+                                <span class="plastic-card__label">Expira</span>
+                                <p class="plastic-card__info">{{ formatDate(card.thruDate) }}</p>
+                            </div>
+                        </div>
+
+                        <!--Parte de atrás de las tarjetas -->
+                        <div v-bind:class="['plastic-card__back', 'plastic-card__part', card.color.toLowerCase() +'-plastic-card']">
+                            <div class="plastic-card__black-line"></div>
+                            <div class="plastic-card__back-content">
+                                <div class="plastic-card__secret">
+                                    <p class="plastic-card__secret--last">{{ card.cvv}}</p>
+                                </div>
+                                <div class="plastic-card__back-square plastic-card__square">
+                                    <span class="plastic-card__label">{{ card.type}} {{ card.color }}</span>
+                                </div>
+                                <img class="plastic-card__back-logo plastic-card__logo"
+                                     src="img/logo vinotinto.png">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row mt-3">
+                    <div class="col">
+                        <h4>Tarjetas de Crédito</h4>
+                        <span class="small" v-if="creditCards.length <= 0">No tienes tarjetas de Crédito</span>
+                    </div>
+                </div>
+                <div class="row ">
+                    <div v-for="card in creditCards" class="plastic-card col-12 col-md-3 mt-2  mx-auto px-2 mb-4">
+                        <div v-bind:class="['plastic-card__front', 'plastic-card__part', card.color.toLowerCase() +'-plastic-card']">
+                            <div class="plastic-card__square">
+                                <span class="plastic-card__label">{{ card.type}} {{ card.color }}</span>
+                            </div>
+                            <img class="plastic-card__front-logo plastic-card__logo"
+                                 src="img/logo vinotinto.png">
+                            <p class="plastic-card_numer">{{ card.number}}</p>
+                            <div class="plastic-card__space-60">
+                                <span class="plastic-card__label">Propietario</span>
+                                <p class="plastic-card__info">{{ card.cardholder }}</p>
+                            </div>
+                            <div class="plastic-card__space-25">
+                                <span class="plastic-card__label">Expira</span>
+                                <p class="plastic-card__info">{{ formatDate(card.thruDate) }}</p>
+                            </div>
+                        </div>
+
+                        <div v-bind:class="['plastic-card__back', 'plastic-card__part', card.color.toLowerCase() +'-plastic-card']">
+                            <div class="plastic-card__black-line"></div>
+                            <div class="plastic-card__back-content">
+                                <div class="plastic-card__secret">
+                                    <p class="plastic-card__secret--last">{{ card.cvv}}</p>
+                                </div>
+                                <div class="plastic-card__back-square plastic-card__square">
+                                    <span class="plastic-card__label">{{ card.type}} {{ card.color }}</span>
+                                </div>
+                                <img class="plastic-card__back-logo plastic-card__logo"
+                                     src="img/logo vinotinto.png">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- footer -->
+<footer id="myFooter" class="site-footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9">
+                <div class="row">
+                    <div class="col-md-5">
+                        <h2 class="footer-heading mb-4">Acerca de nosotros</h2>
+                        <p>Somos un equipo de desarrolladores con diferentes habilidades y experiencia dispuestos a aprender nuevas tecnologias, estamos constantemente aprendiendo y rapidamente ponemos todo lo aprendido en practica. Nuestro lema es siempre ayudar a los demas. Trabaja inteligente, no duramente. Trabajando solos terminamos antes, trabajando juntos llegamos más lejos.</p>
+                    </div>
+                    <div class="col-md-3 ml-auto">
+                        <h2 class="footer-heading mb-4">Links rápidos</h2>
+                        <ul class="list-unstyled">
+                            <li><a href="#about-section" class="smoothscroll">Terminos y condiciones</a></li>
+                            <li><a href="#about-section" class="smoothscroll">Politicas</a></li>
+                            <li><a href="#about-section" class="smoothscroll">Sobre nosotros</a></li>
+                            <li><a href="#services-section" class="smoothscroll">Servicios</a></li>
+                            <li><a href="#testimonials-section" class="smoothscroll">Testimonios</a></li>
+                            <li><a href="#contact-section" class="smoothscroll">Contáctanos</a></li>
+                        </ul>
+                    </div>
+                    <!-- Los íconos no aparecen-->
+                    <div class="col-md-3 footer-social">
+                        <h2 class="footer-heading mb-4">Síguenos</h2>
+                        <a href="#" class="pl-0 pr-3"><span class="icon-facebook"></span></a>
+                        <a href="#" class="pl-3 pr-3"><span class="icon-twitter"></span></a>
+                        <a href="#" class="pl-3 pr-3"><span class="icon-instagram"></span></a>
+                        <a href="#" class="pl-3 pr-3"><span class="icon-linkedin"></span></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <h2 class="footer-heading mb-4">Suscríbete a nuestro newsletter</h2>
+                <form action="#" method="post" class="footer-subscribe">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control border-secondary text-white bg-transparent" placeholder="Ingresa correo" aria-label="Enter Email" aria-describedby="button-addon2">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary text-black" type="button" id="button-addon2">Enviar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+        crossorigin="anonymous"></script>
+<script src="js/cards.js"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="js/timeout.js"></script>
+</body>
+</html>

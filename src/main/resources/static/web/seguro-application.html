@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- copiado -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
+  <link rel="stylesheet" href="fonts/icomoon/style.css">
+
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/jquery-ui.css">
+  <link rel="stylesheet" href="css/owl.carousel.min.css">
+  <link rel="stylesheet" href="css/owl.theme.default.min.css">
+  <link rel="stylesheet" href="css/owl.theme.default.min.css">
+
+  <link rel="stylesheet" href="css/jquery.fancybox.min.css">
+
+  <link rel="stylesheet" href="css/bootstrap-datepicker.css">
+
+  <link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
+
+  <link rel="stylesheet" href="css/aos.css">
+
+  <link rel="stylesheet" href="css/styleIndex.css">
+  <title>Solicitud de Seguros</title>
+</head>
+<body class="transfers-background">
+<div id="app">
+  <div class="toast-container position-absolute p-3 top-0 end-0" id="toastPlacement">
+    <div id="danger-toast" data-bs-delay="2000" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          {{ errorMsg }}
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra de navegación de arriba-->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+      <a class="navbar-brand" href="/web/accounts.html">Debuwin</a>
+      <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="/web/accounts.html">Página principal</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/web/cards.html">Tarjetas</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/web/transfers.html">Transferencias</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="loan-application.html">Crédito</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="/web/seguro-application.html">Seguros</a>
+        </li>
+      </ul>
+      <form class="form-inline my-2 my-lg-0">
+        <button class="btn btn-danger img-fluid" v-on:click="signOut">Cerrar sesión</button>
+      </form>
+    </div>
+  </nav>
+
+  <div class="container bg-transparent">
+    <div class="row mt-5">
+
+
+      <div class="col offset-md-1">
+        <div class="row mt-3">
+          <div class="col-10">
+            <h2 class="display-6 subtitle">Solicitar seguro</h2>
+            <form class="mt-4">
+              <div class="row">
+
+                <!-- tipo seguro-->
+                <div class="col-mt-12">
+                  <label for="type" class="form-label">Tipo de Seguro</label>
+                  <div class="col-md-6">
+                    <select id="type" v-model="seguroTypeId" class="form-select" aria-label="Default select example" required>
+                      <option value="0">Selecciona Aquí</option>
+                      <option v-for="secureType in seguroTypes" v-bind:value="secureType.id">{{ secureType.name }} | cost: {{ secureType.valor }}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <!-- Seleccione cuenta -->
+                <div class="col-mt-12">
+                  <label for="to-account" class="form-label">Cuenta a utilizar</label>
+                  <div class="col-md-6">
+                    <select id="to-account" v-model="accountToNumber" class="form-select" aria-label="Default select example" required>
+                      <option value="0">Selecciona Aquí</option>
+                      <option v-for="account in clientAccounts" v-bind:value="account.number">{{ account.number }}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Button -->
+              <button type="button" v-on:click="checkApplication" class="btn btn-sm btn-success mt-4">Solicitar</button>
+
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="confirModal" tabindex="-1" aria-labelledby="confirModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="confirModalLabel">Confirmar solicitud de seguro</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Las solicitudes de seguro esta lista, ¿quieres continuar?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="button" v-on:click="apply" class="btn btn-sm btn-outline-success">Si, Solicitar seguro</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Modal 2-->
+      <div class="modal fade" id="okModal" tabindex="-1" aria-labelledby="okModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="okModalLabel">¡Solicitud completada!</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              ¡Tu seguro ha sido solicitado! <i class="bi bi-check-circle-fill text-success"></i>
+            </div>
+            <div class="modal-footer">
+              <button type="button" v-on:click="finish" class="btn btn-sm btn-outline-success" data-bs-dismiss="modal">Ok</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer id="myFooter" class="site-footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-9">
+        <div class="row">
+          <div class="col-md-5">
+            <h2 class="footer-heading mb-4">Acerca de nosotros</h2>
+            <p>Somos un equipo de desarrolladores con diferentes habilidades y experiencia dispuestos a aprender nuevas tecnologias, estamos constantemente aprendiendo y rapidamente ponemos todo lo aprendido en practica. Nuestro lema es siempre ayudar a los demas. Trabaja inteligente, no duramente. Trabajando solos terminamos antes, trabajando juntos llegamos más lejos.</p>
+          </div>
+          <div class="col-md-3 ml-auto">
+            <h2 class="footer-heading mb-4">Links rápidos</h2>
+            <ul class="list-unstyled">
+              <li><a href="#about-section" class="smoothscroll">Terminos y condiciones</a></li>
+              <li><a href="#about-section" class="smoothscroll">Politicas</a></li>
+              <li><a href="#about-section" class="smoothscroll">Sobre nosotros</a></li>
+              <li><a href="#services-section" class="smoothscroll">Servicios</a></li>
+              <li><a href="#testimonials-section" class="smoothscroll">Testimonios</a></li>
+              <li><a href="#contact-section" class="smoothscroll">Contáctanos</a></li>
+            </ul>
+          </div>
+          <!-- Los íconos no aparecen-->
+          <div class="col-md-3 footer-social">
+            <h2 class="footer-heading mb-4">Síguenos</h2>
+            <a href="#" class="pl-0 pr-3"><span class="icon-facebook"></span></a>
+            <a href="#" class="pl-3 pr-3"><span class="icon-twitter"></span></a>
+            <a href="#" class="pl-3 pr-3"><span class="icon-instagram"></span></a>
+            <a href="#" class="pl-3 pr-3"><span class="icon-linkedin"></span></a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <h2 class="footer-heading mb-4">Suscríbete a nuestro newsletter</h2>
+        <form action="#" method="post" class="footer-subscribe">
+          <div class="input-group mb-3">
+            <input type="text" class="form-control border-secondary text-white bg-transparent" placeholder="Ingresa correo" aria-label="Enter Email" aria-describedby="button-addon2">
+            <div class="input-group-append">
+              <button class="btn btn-primary text-black" type="button" id="button-addon2">Enviar</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+        crossorigin="anonymous"></script>
+<script src="js/seguro-application.js"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="js/timeout.js"></script>
+<script type="text/javascript">(function(){window['__CF$cv$params']={r:'6d6da253f9ba2854',m:'TAmGQNA6cC2Z1Fh8L2P5bFod2wpbdj4ido.YblGLI7w-1643744243-0-AQgdosufO07gdgox0dLRl9hl+/vLDjTdu8RbojVbYODNNnBgrU1A3JiFfSB3OEs+1R8GlOxx3gMhpNwj6w1KMZPOHR4zF5OU7TnKM3Cpv24wy5oT5PLGr6BPPNq+f4n31St44tpXkGDVdsC2jneW3BeyWBHAcfUaRiMOYot/FFC8rxWRpMuucfxIrqsk23S3xd+Esv+ev5zlsZcCf5G7Z2g=',s:[0x8c5eed9ca8,0x45fad08e1c],}})();</script></body>
+
+</body>
+
+
+
+</html>
