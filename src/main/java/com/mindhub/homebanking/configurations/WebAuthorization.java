@@ -21,14 +21,15 @@ public class WebAuthorization extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http.authorizeRequests()
-                .antMatchers("index.html", "/web/index.html", "/web/home.html").permitAll()
+                .antMatchers("/web/index.html", "/web/home.html","/" ).permitAll()
                 .antMatchers("/web/css/**",  "/web/fonts/**",  "/web/images/**","/web/img/**",  "/web/js/**",  "/web/scss/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/clients").permitAll()
                 .antMatchers("h2-console/**").permitAll()
-                .antMatchers("/**").hasAuthority("CLIENT");
+                .anyRequest().authenticated()
+                .and().formLogin().permitAll();
+               // .antMatchers("/**").hasAuthority("CLIENT");
                 //Todos tienen que autenticados
-                //.anyRequest().authenticated()
-                //.and().formLogin().permitAll();
+
 
         http.formLogin()
                 .usernameParameter("email")
@@ -51,7 +52,7 @@ public class WebAuthorization extends WebSecurityConfigurerAdapter {
         http.formLogin().successHandler((req, res, auth) -> clearAuthenticationAttributes(req));
 
         // if login fails, just send an authentication failure response
-        http.formLogin().failureHandler((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
+        //http.formLogin().failureHandler((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
 
         // if logout is successful, just send a success response
         http.logout().logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler());
