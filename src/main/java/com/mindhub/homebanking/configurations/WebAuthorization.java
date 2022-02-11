@@ -21,7 +21,7 @@ public class WebAuthorization extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http.authorizeRequests()
-                .antMatchers("/web/index.html", "/web/home.html").permitAll()
+                .antMatchers("/index.html", "/web/home.html").permitAll()
                 .antMatchers("/web/css/**",  "/web/fonts/**",  "/web/images/**","/web/img/**",  "/web/js/**",  "/web/scss/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/clients").permitAll()
                 .antMatchers("h2-console/**").permitAll()
